@@ -9,6 +9,7 @@
 
 // ----- includes
 #include "args.h"
+#include "configuration.h"
 
 #include <mutex>
 
@@ -28,6 +29,7 @@ namespace Application
         Instance& operator=(const Instance&) = delete;
 
         Args& args();
+        Configuration& config();
 
     private:    //< private methods
         Instance() = default;
@@ -36,6 +38,7 @@ namespace Application
     private:    //< private members
         static std::mutex mutex_;
         Args args_;
+        Configuration config_;
     };
 
 }

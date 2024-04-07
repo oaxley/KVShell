@@ -28,3 +28,9 @@ Application::Args& Application::Instance::args()
 {
     return args_;
 }
+
+// return the instance of the configuration
+Application::Configuration& Application::Instance::config()
+{
+    return config_;
+}
