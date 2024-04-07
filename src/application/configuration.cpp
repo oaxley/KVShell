@@ -86,6 +86,9 @@ void Application::Configuration::finalize()
 void Application::Configuration::dump()
 {
 #ifdef DEBUG
+    std::cerr << "----- Program -----\n";
+    std::cerr << "name    : " << Constants::program_name << "\n";
+    std::cerr << "version : " << Constants::program_version << "\n";
     std::cerr << "----- Configuration -----\n";
     std::cerr << "filename    : " << filename << "\n";
     std::cerr << "database    : " << database << "\n";
