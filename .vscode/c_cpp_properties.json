@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/src/tomlplusplus/include"
+            ],
+            "defines": [],
+            "cppStandard": "c++17",
+            "configurationProvider": "ms-vscode.makefile-tools",
+            "cStandard": "c17"
+        }
+    ],
+    "version": 4
+}
