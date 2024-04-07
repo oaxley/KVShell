@@ -1,0 +1,6 @@
+# remove the build directory
+build/
+tmp/
+
+# remove object files
+**/*.o
