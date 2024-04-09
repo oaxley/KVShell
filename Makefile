@@ -14,8 +14,8 @@ LDFLAGS := -lpthread -ldl
 BUILD_DIR := build
 SRC_DIR := src/
 
-EXCLUDES := 
-INCLUDES := 
+EXCLUDES := src/tomlplusplus
+INCLUDES := -I src/tomlplusplus/include
 
 # target
 TARGET := $(BUILD_DIR)/kvshell
