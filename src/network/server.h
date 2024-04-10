@@ -1,6 +1,6 @@
 /*
  * @file    server.h
- * @brief   Network TCP Server
+ * @brief   Header file for Network TCP Server class
  */
 
 // ----- guards
