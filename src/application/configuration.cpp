@@ -19,43 +19,63 @@
 // initialize the configuration from the command line arguments
 void Application::Configuration::loadFromArgs(Application::Args& args)
 {
+    int args_counter{0};
+
     Application::Args::Iterator it = args.begin();
+    Application::Args::Iterator tmp{nullptr};
+
     while (it != args.end())
     {
         // user configuration file
         if ((*it).compare("--config") == 0) {
+            tmp = it;
             filename = ((it + 1) != args.end()) ? *(++it) : Constants::Config::filename;
+            args_counter += (it - tmp) + 1;
         }
 
         // database path
         if ((*it).compare("--database") == 0) {
+            tmp = it;
             database = ((it + 1) != args.end()) ? *(++it) : Constants::Config::database;
+            args_counter += (it - tmp) + 1;
         }
 
         // server mode
         if ((*it).compare("--serve") == 0) {
+            args_counter += 1;
             is_server = true;
         }
 
         if ((*it).compare("--bind-address") == 0) {
+            tmp = it;
             srv_address = ((it + 1) != args.end()) ? *(++it) : Constants::Config::srv_address;
+            args_counter += (it - tmp) + 1;
         }
 
         if ((*it).compare("--bind-port") == 0) {
+            tmp = it;
             srv_port = ((it + 1) != args.end()) ? *(++it) : Constants::Config::srv_port;
+            args_counter += (it - tmp) + 1;
         }
 
         if ((*it).compare("--address") == 0) {
+            tmp = it;
             clt_address = ((it + 1) != args.end()) ? *(++it) : Constants::Config::clt_address;
+            args_counter += (it - tmp) + 1;
         }
 
         if ((*it).compare("--port") == 0) {
+            tmp = it;
             clt_port = ((it + 1) != args.end()) ? *(++it) : Constants::Config::clt_port;
+            args_counter += (it - tmp) + 1;
         }
 
         // next item
         ++it;
     }
+
+    // set the user commands' index to this position
+    args.setCmdIndex(args_counter);
 }
 
 // initialize the configuration from a TOML file

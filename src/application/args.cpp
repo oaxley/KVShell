@@ -45,3 +45,16 @@ bool Application::Args::empty() const
 {
     return args_.empty();
 }
+
+// set the position of the user commands' index in the arguments
+// (deducted when the args are parsed later on)
+void Application::Args::setCmdIndex(int value)
+{
+    index_ = value;
+}
+
+// get the position of the user commands' index
+int Application::Args::getCmdIndex() const
+{
+    return index_;
+}

@@ -32,9 +32,13 @@ namespace Application
         int count() const;
         bool empty() const;
 
+        // user command accessors
+        void setCmdIndex(int value);
+        int getCmdIndex() const;
 
     private:
         std::vector<std::string> args_;         //< command line arguments
+        int index_{};
     };
 
 }
