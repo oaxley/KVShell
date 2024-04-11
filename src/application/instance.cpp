@@ -23,14 +23,36 @@ std::mutex Application::Instance::mutex_;
     return inst;
 }
 
-// return the instance of the argument parser
-Application::Args& Application::Instance::args()
-{
-    return args_;
-}
-
 // return the instance of the configuration
 Application::Configuration& Application::Instance::config()
 {
     return config_;
+}
+
+// parse the command line
+void Application::Instance::parse(int argc, char* argv[])
+{
+    cmdline_.parse(argc, argv);
+}
+
+// return a reference to the cmdline
+Application::CmdLine& Application::Instance::cmdline()
+{
+    return cmdline_;
+}
+
+// load the configuration from the options and the file
+void Application::Instance::loadConfig()
+{
+    // load from the command line options
+    config_.fromOptions(cmdline_.options());
+
+    // load from the configuration file
+    config_.fromFile();
+
+    // finalize the configuration
+    config_.finalize();
+
+    // dump the configuration in debug mode
+    config_.dump();
 }

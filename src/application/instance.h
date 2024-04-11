@@ -8,7 +8,7 @@
 #define INSTANCE_H
 
 // ----- includes
-#include "args.h"
+#include "cmdline.h"
 #include "configuration.h"
 
 #include <mutex>
@@ -28,8 +28,11 @@ namespace Application
         Instance(const Instance&) = delete;
         Instance& operator=(const Instance&) = delete;
 
-        Args& args();
+        void parse(int argc, char* argv[]);
+        void loadConfig();
+
         Configuration& config();
+        CmdLine& cmdline();
 
     private:    //< private methods
         Instance() = default;
@@ -37,8 +40,8 @@ namespace Application
 
     private:    //< private members
         static std::mutex mutex_;
-        Args args_;
         Configuration config_;
+        CmdLine cmdline_;
     };
 
 }
