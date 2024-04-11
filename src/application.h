@@ -5,7 +5,6 @@
 #define APPLICATION_H
 
 // ----- includes
-#include "application/args.h"
 #include "application/instance.h"
 #include "application/configuration.h"
 
