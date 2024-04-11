@@ -1,6 +1,6 @@
 /*
  * @file    interface.h
- * @brief   Network generic interface
+ * @brief   Header file for Interface class
  */
 
 // ----- guards
@@ -17,7 +17,8 @@ namespace Network
 
     class Interface
     {
-    public:
+    public:     //< public methods
+
         Interface(std::string address, int port) :
             address_{address}, port_{port}
         { }
@@ -33,8 +34,12 @@ namespace Network
         Interface(Interface&&) = delete;
         Interface&& operator=(Interface&&) = delete;
 
+        // resolvers
+        int resolvePort(std::string port);
+        // resolveAddr(std::string address);
 
-    protected:
+    protected:  //< private members
+
         std::string address_{};         //< the network address
         int port_{};                    //< the network port
         int socket_{};                  //< the network socket
