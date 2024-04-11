@@ -8,7 +8,7 @@
 #define CONFIGURATION_H
 
 // ----- includes
-#include "args.h"
+#include "cmdline.h"
 
 #include <string>
 
@@ -34,8 +34,8 @@ namespace Application
         int gid{};                      //< Unix group ID
 
         // ----- methods
-        void loadFromArgs(Application::Args& args);
-        void loadFromFile();
+        void fromOptions(Application::CmdLine::Options_t& options);
+        void fromFile();
         void finalize();
         void dump();
     };

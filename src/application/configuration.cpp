@@ -16,70 +16,57 @@
 
 
 // ----- member methods
-// initialize the configuration from the command line arguments
-void Application::Configuration::loadFromArgs(Application::Args& args)
+namespace Application
 {
-    int args_counter{0};
 
-    Application::Args::Iterator it = args.begin();
-    Application::Args::Iterator tmp{nullptr};
+// setup the configuration from the cmdline options
+void Configuration::fromOptions(CmdLine::Options_t& options)
+{
+    CmdLine::Options_t::const_iterator it = options.begin();
 
-    while (it != args.end())
+    while (it != options.end())
     {
         // user configuration file
         if ((*it).compare("--config") == 0) {
-            tmp = it;
-            filename = ((it + 1) != args.end()) ? *(++it) : Constants::Config::filename;
-            args_counter += (it - tmp) + 1;
+            filename = *(++it);
         }
 
-        // database path
+        // database
         if ((*it).compare("--database") == 0) {
-            tmp = it;
-            database = ((it + 1) != args.end()) ? *(++it) : Constants::Config::database;
-            args_counter += (it - tmp) + 1;
+            database = *(++it);
         }
 
         // server mode
         if ((*it).compare("--serve") == 0) {
-            args_counter += 1;
             is_server = true;
         }
 
+        // server address
         if ((*it).compare("--bind-address") == 0) {
-            tmp = it;
-            srv_address = ((it + 1) != args.end()) ? *(++it) : Constants::Config::srv_address;
-            args_counter += (it - tmp) + 1;
+            srv_address = *(++it);
         }
 
+        // server port
         if ((*it).compare("--bind-port") == 0) {
-            tmp = it;
-            srv_port = ((it + 1) != args.end()) ? *(++it) : Constants::Config::srv_port;
-            args_counter += (it - tmp) + 1;
+            srv_port = *(++it);
         }
 
+        // client address
         if ((*it).compare("--address") == 0) {
-            tmp = it;
-            clt_address = ((it + 1) != args.end()) ? *(++it) : Constants::Config::clt_address;
-            args_counter += (it - tmp) + 1;
+            clt_address = *(++it);
         }
 
+        // client port
         if ((*it).compare("--port") == 0) {
-            tmp = it;
-            clt_port = ((it + 1) != args.end()) ? *(++it) : Constants::Config::clt_port;
-            args_counter += (it - tmp) + 1;
+            clt_port = *(++it);
         }
 
         // next item
         ++it;
     }
-
-    // set the user commands' index to this position
-    args.setCmdIndex(args_counter);
 }
 
-// initialize the configuration from a TOML file
-void Application::Configuration::loadFromFile()
+void Configuration::fromFile()
 {
     // use the filename in the configuration
     if (filename.size() == 0)
@@ -93,12 +80,9 @@ void Application::Configuration::loadFromFile()
 
     // load the TOML file
     toml::table table;
-    try
-    {
+    try {
         table = toml::parse_file(filename);
-    }
-    catch(const std::exception& e)
-    {
+    } catch(const std::exception& e) {
         std::cerr << "Error: parsing failed\n";
         std::cerr << e.what() << '\n';
         std::exit(EXIT_FAILURE);
@@ -156,8 +140,7 @@ void Application::Configuration::loadFromFile()
     }
 }
 
-// finalize the configuration
-void Application::Configuration::finalize()
+void Configuration::finalize()
 {
     // retrieve the UID/GID from the user
     uid = getuid();
@@ -183,8 +166,7 @@ void Application::Configuration::finalize()
         clt_port = Constants::Config::clt_port;
 }
 
-// dump the configuration (debug only)
-void Application::Configuration::dump()
+void Configuration::dump()
 {
 #ifdef DEBUG
     std::cerr << "----- Program -----\n";
@@ -203,3 +185,4 @@ void Application::Configuration::dump()
 #endif
 }
 
+} //< end namespace
