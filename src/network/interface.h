@@ -19,7 +19,7 @@ namespace Network
     {
     public:     //< public methods
 
-        Interface(std::string address, int port) :
+        Interface(std::string address, std::string port) :
             address_{address}, port_{port}
         { }
 
@@ -35,13 +35,13 @@ namespace Network
         Interface&& operator=(Interface&&) = delete;
 
         // resolvers
-        int resolvePort(std::string port);
-        // resolveAddr(std::string address);
+        static int resolvePort(std::string port);
+        static void* resolveAddr(std::string address);
 
     protected:  //< private members
 
         std::string address_{};         //< the network address
-        int port_{};                    //< the network port
+        std::string port_{};            //< the network port
         int socket_{};                  //< the network socket
     };
 
