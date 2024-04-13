@@ -87,7 +87,7 @@ void TCPServer::bindSocket()
     bind(socket_, (struct sockaddr*)&server_address, sizeof(server_address));
 
     // listen
-    listen(socket_, Constants::Config::server_listen_max);
+    listen(socket_, Constants::Network::server_listen_max);
 }
 
 // serve the request from client
@@ -121,7 +121,7 @@ void TCPServer::stop()
 void TCPServer::serveRequest()
 {
     // create epoll instance
-    struct epoll_event event, events[Constants::Config::epoll_max_events];
+    struct epoll_event event, events[Constants::Network::epoll_max_events];
     int epoll_fd = epoll_create1(0);
     if (epoll_fd < 0) {
         std::cerr << "Error: unable to create the epoll instance!\n";
@@ -140,7 +140,7 @@ void TCPServer::serveRequest()
     while (!done_)
     {
         // wait for an event (or timeout)
-        int num_events = epoll_wait(epoll_fd, events, Constants::Config::epoll_max_events, Constants::Config::epoll_timeout);
+        int num_events = epoll_wait(epoll_fd, events, Constants::Network::epoll_max_events, Constants::Network::epoll_timeout);
         if (num_events == -1) {
             std::cerr << "Error: epoll unable to wait for events!\n";
             std::exit(EXIT_FAILURE);
@@ -173,7 +173,6 @@ void TCPServer::serveRequest()
             }
         }
     }
-
 }
 
 }   //< end namespace
