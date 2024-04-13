@@ -28,6 +28,11 @@ namespace Constants::Config
 
     inline static std::string clt_address{"localhost"};
     inline static std::string clt_port{"4567"};
+
+    inline static int server_listen_max{5};
+
+    inline static int epoll_max_events{10};
+    inline static int epoll_timeout{200};                   //< timeout in ms
 }
 
 
