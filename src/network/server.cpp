@@ -65,7 +65,7 @@ void TCPServer::bindSocket()
         std::cerr << "Error: invalid TCP service provided!\n";
         std::exit(EXIT_FAILURE);
     }
-    server_address.sin_port = service;
+    server_address.sin_port = htons(service);
 
     // use 0.0.0.0 for now
     void *ip = resolveAddr(address_);
