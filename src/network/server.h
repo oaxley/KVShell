@@ -24,7 +24,7 @@ namespace Network
     {
     public:     //< public methods
 
-        TCPServer(std::string address, int port);
+        TCPServer(std::string address, std::string port);
         virtual ~TCPServer();
 
         // no copy semantics
@@ -42,6 +42,7 @@ namespace Network
 
     private:    //< private methods
         void serveRequest();
+        void bindSocket();
 
     private:    //< private members
         std::thread thread_;            //< execution thread
