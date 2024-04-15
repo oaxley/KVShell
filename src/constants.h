@@ -38,5 +38,10 @@ namespace Constants::Network
     inline static int epoll_timeout{200};                   //< timeout in ms
 }
 
+namespace Constants::KVServer
+{
+    using namespace std::chrono_literals;
+    inline constexpr std::chrono::milliseconds kvserver_mainloop_timeout{200ms};
+}
 
 #endif // CONSTANTS_H
