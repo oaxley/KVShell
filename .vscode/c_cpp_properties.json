@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/src/tomlplusplus/include"
+                "${workspaceFolder}/src/tomlplusplus/include",
+                "${workspaceFolder}/src/SQLiteCpp/include"
             ],
             "defines": [],
             "cppStandard": "c++17",

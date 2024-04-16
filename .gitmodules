@@ -1,3 +1,6 @@
 [submodule "src/tomlplusplus"]
 	path = src/tomlplusplus
 	url = https://github.com/marzer/tomlplusplus.git
+[submodule "src/SQLiteCpp"]
+	path = src/SQLiteCpp
+	url = https://github.com/SRombauts/SQLiteCpp.git
