@@ -8,14 +8,14 @@ else
 endif
 
 CFLAGS := -g3 -std=c++17
-LDFLAGS := -lpthread -ldl
+LDFLAGS := -lpthread -ldl -lsqlite3 -lSQLiteCpp -L src/SQLiteCpp/build
 
 # directories
 BUILD_DIR := build
 SRC_DIR := src/
 
-EXCLUDES := src/tomlplusplus
-INCLUDES := -I src/tomlplusplus/include
+EXCLUDES := src/tomlplusplus src/SQLiteCpp
+INCLUDES := -I src/tomlplusplus/include -I src/SQLiteCpp/include
 
 # target
 TARGET := $(BUILD_DIR)/kvshell
