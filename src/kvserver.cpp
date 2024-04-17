@@ -27,9 +27,16 @@ void signalHandler(int signal)
 // ----- class
 
 // constructor
-KVServer::KVServer(std::string address, std::string port) :
-    pServer_{nullptr}, done_{true}
+KVServer::KVServer(std::string address, std::string port, std::string dbname) :
+    pDbase_{nullptr}, pServer_{nullptr}, done_{true}
 {
+    // create a new database instance
+    pDbase_ = new KVDbase(dbname);
+    if (!pDbase_) {
+        std::cerr << "Error: unable to create a KVDbase instance!\n";
+        std::exit(EXIT_FAILURE);
+    }
+
     // create a new TCPServer
     pServer_ = new Network::TCPServer{address, port};
     if (!pServer_) {

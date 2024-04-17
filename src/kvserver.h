@@ -8,6 +8,7 @@
 #define KVSERVER_H
 
 // ----- includes
+#include "kvdbase.h"
 #include "network.h"
 
 #include <string>
@@ -17,7 +18,7 @@
 class KVServer
 {
 public:
-    KVServer(std::string address, std::string port);
+    KVServer(std::string address, std::string port, std::string dbname);
     ~KVServer();
 
     void start();
@@ -35,6 +36,7 @@ public:
     KVServer& operator=(KVServer&&) = delete;
 
 private:
+    KVDbase* pDbase_;
     Network::TCPServer* pServer_;
     bool done_;
 };
