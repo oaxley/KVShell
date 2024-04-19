@@ -48,6 +48,8 @@ KVServer::KVServer(std::string address, std::string port, std::string dbname) :
 // destructor
 KVServer::~KVServer()
 {
+    // stop properly the server
+    stop();
     delete pServer_;
     pServer_ = nullptr;
 }
