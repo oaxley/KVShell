@@ -44,4 +44,9 @@ namespace Constants::KVServer
     inline constexpr std::chrono::milliseconds kvserver_mainloop_timeout{200ms};
 }
 
+namespace Constants::KVClient
+{
+    inline static int max_item_size{1 << 16};       //< 64KiB
+}
+
 #endif // CONSTANTS_H
