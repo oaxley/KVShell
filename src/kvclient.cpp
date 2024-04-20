@@ -47,12 +47,11 @@ void KVClient::parse(Application::CmdLine& cmdline)
     {
         // set a new value
         if ((*it).compare("set") == 0) {
-            VM::QueueItem* item = new VM::QueueItem;
-
-            item->opcode = (args_size == 2) ? VM::Opcodes_t::OP_SET1 : VM::Opcodes_t::OP_SET2;
-            item->szdata = 0;
-            item->pdata = nullptr;
-
+            VM::QueueItem* item = new VM::QueueItem {
+                opcode: (args_size == 2) ? VM::Opcodes_t::OP_SET1 : VM::Opcodes_t::OP_SET2,
+                szdata: 0,
+                pdata: nullptr
+            };
             items_.push(item);
             ++it;
 
@@ -65,6 +64,24 @@ void KVClient::parse(Application::CmdLine& cmdline)
             } else {
                 getValue(*(it++));
             }
+
+            break;
+        }
+
+        // get a value
+        if ((*it).compare("get") == 0) {
+            VM::QueueItem* item = new VM::QueueItem {
+                opcode: VM::Opcodes_t::OP_GET1,
+                szdata: 0,
+                pdata: nullptr
+            };
+            items_.push(item);
+            ++it;
+
+            // read the key name
+            getKeyName(*(it++));
+
+            break;
         }
     }
 }
@@ -115,13 +132,7 @@ void KVClient::getValue(std::string_view arg)
 {
     // data from the command line
     if (arg.size() > 0) {
-        // look up for the first character if it's a file
-        if (arg.at(0) == '@') {
-            itemFromArg(arg, VM::Opcodes_t::V_FILE);
-        } else {
-            itemFromArg(arg, VM::Opcodes_t::V_STR);
-        }
-
+        itemFromArg(arg, VM::Opcodes_t::V_STR);
         return;
     }
 

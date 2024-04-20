@@ -40,7 +40,6 @@ enum class Opcodes_t {
     // ----- VALUES
     V_STR,                  //< String Value
     V_STDIN,                //< Read STDIN for input
-    V_FILE,                 //< File as an input (@filename)
     V_DT,                   //< Date Time value
     V_DUR,                  //< Duration with unit
     V_REGEXP,               //< Regular Expression
