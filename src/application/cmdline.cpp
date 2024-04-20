@@ -106,6 +106,12 @@ void CmdLine::parse(int argc, char* argv[])
             options_count += (it - tmp) + 1;
         }
 
+        // help mode
+        if ((*it).compare("--help") == 0) {
+            options_.push_back(*it);
+            options_count += 1;
+        }
+
         // next item
         ++it;
     }

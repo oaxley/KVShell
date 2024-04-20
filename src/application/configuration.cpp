@@ -61,6 +61,11 @@ void Configuration::fromOptions(CmdLine::Options_t& options)
             clt_port = *(++it);
         }
 
+        // help mode
+        if ((*it).compare("--help") == 0) {
+            is_help = true;
+        }
+
         // next item
         ++it;
     }
@@ -182,7 +187,29 @@ void Configuration::dump()
     std::cerr << "clt_port    : " << clt_port << "\n";
     std::cerr << "uid         : " << uid << "\n";
     std::cerr << "gid         : " << gid << "\n";
+    std::cerr << "is_help     : " << std::boolalpha << is_help << "\n";
 #endif
+}
+
+void Configuration::printHelp()
+{
+    std::cout << Constants::program_name << " - v" << Constants::program_version << "\n";
+    std::cout << "Syntax :\n";
+    std::cout << "    " << Constants::program_name << " [options] <command> <arg 1 ... arg N>\n";
+    std::cout << "\n";
+    std::cout << "Options :\n";
+    std::cout << "  --help : this help\n";
+    std::cout << "  --config <filename> : alternate configuration file (default: " << Constants::Config::filename << ")\n";
+    std::cout << "  --database <filename> : SQLite3 database location (default: " << Constants::Config::database << ")\n";
+
+    std::cout << "  --serve : run as a server (default: False)\n";
+    std::cout << "  --bind-address: address to bind to in server mode (default: " << Constants::Config::srv_address << ")\n";
+    std::cout << "  --bind-port: TCP port to bind to in server mode (default: " << Constants::Config::srv_port << ")\n";
+
+    std::cout << "  --address: server address (default: " << Constants::Config::clt_address << ")\n";
+    std::cout << "  --port: server TCP port (default: " << Constants::Config::clt_port << ")\n";
+
+    std::cout << std::endl;
 }
 
 } //< end namespace

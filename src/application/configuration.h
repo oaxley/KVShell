@@ -33,11 +33,14 @@ namespace Application
         int uid{};                      //< Unix user ID
         int gid{};                      //< Unix group ID
 
+        bool is_help{false};            //< true if user wants help
+
         // ----- methods
         void fromOptions(Application::CmdLine::Options_t& options);
         void fromFile();
         void finalize();
         void dump();
+        void printHelp();
     };
 
 }
