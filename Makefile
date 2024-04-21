@@ -1,13 +1,12 @@
 # Makefile
 
-# generic variables
-ifdef DEBUG
-	CC=g++ -DDEBUG=1
+ifdef RELEASE
+	CC=g++ -O3
 else
-	CC=g++
+	CC=g++ -g3 -DDEBUG=1
 endif
 
-CFLAGS := -g3 -std=c++17
+CFLAGS := -std=c++17
 LDFLAGS := -lpthread -ldl -lsqlite3 -lSQLiteCpp -L src/SQLiteCpp/build
 
 # directories
