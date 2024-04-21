@@ -10,9 +10,11 @@
 
 // ----- includes
 #include "application.h"
+#include "network/client.h"
 #include "vm/defines.h"
 
 #include <queue>
+#include <string>
 
 
 // ----- typedefs
@@ -23,10 +25,11 @@ using queue_t = std::queue<VM::QueueItem*>;
 class KVClient
 {
 public:     //< public methods
-    KVClient();
+    KVClient(std::string address, std::string port);
     ~KVClient();
 
     void parse(Application::CmdLine& cmdline);
+    void send();
 
 
     // no copy semantics
@@ -43,6 +46,7 @@ private:    //< private methods
     void getValue(std::string_view);
 
 private:    //< private members
+    Network::TCPClient* pClient_;
     queue_t items_;
 };
 

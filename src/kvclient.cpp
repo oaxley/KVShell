@@ -19,8 +19,15 @@
 // ----- class
 
 // constructor
-KVClient::KVClient()
+KVClient::KVClient(std::string address, std::string port) :
+    pClient_{nullptr}
 {
+    // create a new TCPClient
+    pClient_ = new Network::TCPClient(address, port);
+    if (!pClient_) {
+        std::cerr << "Error: unable to create a TCPClient instance\n";
+        std::exit(EXIT_FAILURE);
+    }
 }
 
 // destructor
@@ -33,6 +40,10 @@ KVClient::~KVClient()
 
         delete elt;
     }
+
+    // delete the client
+    delete pClient_;
+    pClient_ = nullptr;
 }
 
 // parse the command line and create the linked list
@@ -160,4 +171,42 @@ void KVClient::getValue(std::string_view arg)
             items_.push(item);
         }
     }
+}
+
+// send the command to the server
+void KVClient::send()
+{
+    // connect to the server
+    pClient_->connect();
+
+    // send the start of transmission
+    pClient_->send(&Constants::Network::Protocol::sot, 1);
+
+    while (!items_.empty())
+    {
+        std::uint8_t value{};
+
+        // retrieve the item
+        auto* item = items_.front();
+
+        // send the opcode
+        value = static_cast<std::uint8_t>(item->opcode);
+        pClient_->send(&value, 1);
+
+        // retrieve the value of the data
+        if (item->szdata == 0) {
+            value = 0;
+            pClient_->send(&value, 1);
+        } else {
+            pClient_->send(reinterpret_cast<std::uint8_t*>(&item->szdata), sizeof(item->szdata));
+            pClient_->send(item->pdata, item->szdata);
+        }
+
+        // delete the item
+        items_.pop();
+        delete item;
+    }
+
+    // send the end of transmission
+    pClient_->send(&Constants::Network::Protocol::eot, 1);
 }

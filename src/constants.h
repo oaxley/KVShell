@@ -38,6 +38,12 @@ namespace Constants::Network
     inline static int epoll_timeout{200};                   //< timeout in ms
 }
 
+namespace Constants::Network::Protocol
+{
+    inline static std::uint8_t sot{0xFA};           //< start of transmission
+    inline static std::uint8_t eot{0xFB};           //< end of transmission
+}
+
 namespace Constants::KVServer
 {
     using namespace std::chrono_literals;
