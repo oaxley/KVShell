@@ -9,5 +9,6 @@
 
 #include "network/interface.h"
 #include "network/server.h"
+#include "network/client.h"
 
 #endif // NETWORK_H
