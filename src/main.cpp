@@ -23,8 +23,9 @@ int main(int argc, char* argv[])
         KVServer kvserver(app.config().srv_address, app.config().srv_port, app.config().database);
         kvserver.start();
     } else {
-        KVClient kvclient;
+        KVClient kvclient(app.config().clt_address, app.config().clt_port);
         kvclient.parse(app.cmdline());
+        kvclient.send();
     }
 
     return EXIT_SUCCESS;
