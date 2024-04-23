@@ -195,8 +195,8 @@ void KVClient::send()
 
         // retrieve the value of the data
         if (item->szdata == 0) {
-            value = 0;
-            pClient_->send(&value, sizeof(value));
+            std::uint16_t zero = 0;
+            pClient_->send(reinterpret_cast<std::uint8_t*>(&zero), sizeof(zero));
         } else {
             pClient_->send(reinterpret_cast<std::uint8_t*>(&item->szdata), sizeof(item->szdata));
             pClient_->send(item->pdata, item->szdata);
