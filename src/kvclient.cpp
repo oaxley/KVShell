@@ -110,8 +110,8 @@ void KVClient::itemFromArg(std::string_view arg, VM::Opcodes_t opcode)
 
         // ensure we create only block of 64KiB
         int block_size = 0;
-        if (remaining > Constants::KVClient::max_item_size) {
-            block_size = Constants::KVClient::max_item_size;
+        if (remaining > Constants::Network::Protocol::max_item_size) {
+            block_size = Constants::Network::Protocol::max_item_size;
         } else {
             block_size = remaining;
         }
@@ -149,10 +149,10 @@ void KVClient::getValue(std::string_view arg)
 
     // data are passed from STDIN either with "<" or a pipe "|"
     if (!isatty(fileno(stdin))) {
-        std::uint8_t buffer[Constants::KVClient::max_item_size];
+        std::uint8_t buffer[Constants::Network::Protocol::max_item_size];
         while (true)
         {
-            int n = read(fileno(stdin), buffer, Constants::KVClient::max_item_size);
+            int n = read(fileno(stdin), buffer, Constants::Network::Protocol::max_item_size);
 
             // nothing to read anymore
             if (n <= 0)

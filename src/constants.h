@@ -40,8 +40,9 @@ namespace Constants::Network
 
 namespace Constants::Network::Protocol
 {
-    inline static std::uint8_t sot{0xFA};           //< start of transmission
-    inline static std::uint8_t eot{0xFB};           //< end of transmission
+    inline static std::uint8_t sot{0xFA};                       //< start of transmission
+    inline static std::uint8_t eot{0xFB};                       //< end of transmission
+    inline static std::uint16_t max_item_size{(1 << 16) - 1};   //< max item size
 }
 
 namespace Constants::KVServer
