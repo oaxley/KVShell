@@ -191,12 +191,12 @@ void KVClient::send()
 
         // send the opcode
         value = static_cast<std::uint8_t>(item->opcode);
-        pClient_->send(&value, 1);
+        pClient_->send(&value, sizeof(value));
 
         // retrieve the value of the data
         if (item->szdata == 0) {
             value = 0;
-            pClient_->send(&value, 1);
+            pClient_->send(&value, sizeof(value));
         } else {
             pClient_->send(reinterpret_cast<std::uint8_t*>(&item->szdata), sizeof(item->szdata));
             pClient_->send(item->pdata, item->szdata);
