@@ -49,11 +49,8 @@ namespace Constants::KVServer
 {
     using namespace std::chrono_literals;
     inline constexpr std::chrono::milliseconds kvserver_mainloop_timeout{200ms};
-}
 
-namespace Constants::KVClient
-{
-    inline static int max_item_size{1 << 16};       //< 64KiB
+    inline static int max_read_buffer{1024};
 }
 
 #endif // CONSTANTS_H
