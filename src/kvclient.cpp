@@ -59,7 +59,7 @@ void KVClient::parse(Application::CmdLine& cmdline)
         // set a new value
         if ((*it).compare("set") == 0) {
             VM::QueueItem* item = new VM::QueueItem {
-                opcode: (args_size == 2) ? VM::Opcodes_t::OP_SET1 : VM::Opcodes_t::OP_SET2,
+                opcode: VM::Opcodes_t::OP_SET,
                 szdata: 0,
                 pdata: nullptr
             };
@@ -82,7 +82,7 @@ void KVClient::parse(Application::CmdLine& cmdline)
         // get a value
         if ((*it).compare("get") == 0) {
             VM::QueueItem* item = new VM::QueueItem {
-                opcode: VM::Opcodes_t::OP_GET1,
+                opcode: VM::Opcodes_t::OP_GET,
                 szdata: 0,
                 pdata: nullptr
             };

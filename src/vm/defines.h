@@ -10,6 +10,7 @@
 
 // ----- includes
 #include <cstdint>
+#include <queue>
 
 
 // ----- definitions
@@ -20,19 +21,18 @@ namespace VM
 // ----- enums
 enum class Opcodes_t {
     // ----- OPERATORS
-    OP_SET1,                //< "SET KEY < something" or "something | SET KEY"
-    OP_SET2,                //< "SET KEY VALUE"
+    OP_SET,                //< "SET KEY VALUE" | "SET KEY < something" | "something | SET KEY"
 
-    OP_GET1,                //< "GET KEY"
+    OP_GET,                //< "GET KEY"
 
-    OP_EXPDT2,              //< "EXPIRE KEY DATETIME"
-    OP_EXPDR2,              //< "EXPIRE KEY DURATION"
+    OP_EXPDT,              //< "EXPIRE KEY DATETIME"
+    OP_EXPDR,              //< "EXPIRE KEY DURATION"
 
-    OP_DEL1,                //< "DELETE KEY"
+    OP_DEL,                //< "DELETE KEY"
 
-    OP_PRT1,                //< "PRINT 'regexp'"
+    OP_PRT,                //< "PRINT 'regexp'"
 
-    OP_EXIST1,              //< "EXIST KEY"
+    OP_EXIST,              //< "EXIST KEY"
 
     // ----- KEY
     K_NAME,                 //< Standard string for key
@@ -43,6 +43,10 @@ enum class Opcodes_t {
     V_DT,                   //< Date Time value
     V_DUR,                  //< Duration with unit
     V_REGEXP,               //< Regular Expression
+
+    // ----- RESP
+    R_VALUE,                //< Response from Server
+    R_ERROR,                //< Error from the Server
 };
 
 // queue item
