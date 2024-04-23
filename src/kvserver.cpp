@@ -52,6 +52,9 @@ KVServer::~KVServer()
     stop();
     delete pServer_;
     pServer_ = nullptr;
+
+    // free the items in the queue if any
+    freeItems();
 }
 
 // start the server
@@ -85,6 +88,24 @@ void KVServer::stop()
     if (!done_) {
         done_ = true;
         pServer_->stop();
+    }
+}
+
+// signal handler
+void KVServer::signalHandler(int signal)
+{
+    if (signal == SIGINT) {
+        stop();
+    }
+}
+
+// free the items in the queue (if any)
+void KVServer::freeItems()
+{
+    while (items_.size() > 0) {
+        auto* elt = items_.front();
+        items_.pop();
+        delete elt;
     }
 }
 

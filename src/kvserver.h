@@ -10,6 +10,7 @@
 // ----- includes
 #include "kvdbase.h"
 #include "network.h"
+#include "vm/defines.h"
 
 #include <string>
 
@@ -17,7 +18,7 @@
 // ----- class
 class KVServer
 {
-public:
+public:     //< public methods
     KVServer(std::string address, std::string port, std::string dbname);
     ~KVServer();
 
@@ -35,10 +36,14 @@ public:
     KVServer(KVServer&&) = delete;
     KVServer& operator=(KVServer&&) = delete;
 
-private:
+private:    //< private methods
+    void freeItems();
+
+private:    //< private members
     KVDbase* pDbase_;
     Network::TCPServer* pServer_;
     bool done_;
+    VM::queue_t items_;
 };
 
 
