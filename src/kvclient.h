@@ -10,16 +10,10 @@
 
 // ----- includes
 #include "application.h"
-#include "network/client.h"
+#include "network.h"
 #include "vm/defines.h"
 
-#include <queue>
 #include <string>
-
-
-// ----- typedefs
-using queue_t = std::queue<VM::QueueItem*>;
-
 
 // ----- class
 class KVClient
@@ -47,7 +41,7 @@ private:    //< private methods
 
 private:    //< private members
     Network::TCPClient* pClient_;
-    queue_t items_;
+    VM::queue_t items_;
 };
 
 

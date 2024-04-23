@@ -57,6 +57,8 @@ struct QueueItem
     }
 };
 
+// typedef
+using queue_t = std::queue<QueueItem*>;
 
 } //< end of namespace
 
