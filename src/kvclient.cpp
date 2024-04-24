@@ -46,6 +46,13 @@ KVClient::~KVClient()
     pClient_ = nullptr;
 }
 
+// set user UID/GID
+void KVClient::setUser(int uid, int gid)
+{
+    uid_ = uid;
+    gid_ = gid;
+}
+
 // parse the command line and create the linked list
 void KVClient::parse(Application::CmdLine& cmdline)
 {
@@ -65,6 +72,14 @@ void KVClient::parse(Application::CmdLine& cmdline)
             };
             items_.push(item);
             ++it;
+
+            // add the userId
+            item = new VM::QueueItem {
+                opcode: VM::Opcodes_t::U_USER,
+                szdata: sizeof(uid_),
+                pdata: reinterpret_cast<std::uint8_t*>(&uid_)
+            };
+            items_.push(item);
 
             // read the Key Name
             getKeyName(*(it++));
@@ -88,6 +103,14 @@ void KVClient::parse(Application::CmdLine& cmdline)
             };
             items_.push(item);
             ++it;
+
+            // add the userId
+            item = new VM::QueueItem {
+                opcode: VM::Opcodes_t::U_USER,
+                szdata: sizeof(uid_),
+                pdata: reinterpret_cast<std::uint8_t*>(&uid_)
+            };
+            items_.push(item);
 
             // read the key name
             getKeyName(*(it++));

@@ -24,7 +24,7 @@ public:     //< public methods
 
     void parse(Application::CmdLine& cmdline);
     void send();
-
+    void setUser(int uid, int gid);
 
     // no copy semantics
     KVClient(const KVClient&) = delete;
@@ -42,6 +42,9 @@ private:    //< private methods
 private:    //< private members
     Network::TCPClient* pClient_;
     VM::queue_t items_;
+
+    int uid_{};
+    int gid_{};
 };
 
 

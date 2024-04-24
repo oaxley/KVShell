@@ -47,6 +47,9 @@ enum class Opcodes_t {
     // ----- RESP
     R_VALUE,                //< Response from Server
     R_ERROR,                //< Error from the Server
+
+    // ----- USER
+    U_USER,                 //< User ID
 };
 
 // queue item

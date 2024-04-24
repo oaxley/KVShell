@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
         kvserver.start();
     } else {
         KVClient kvclient(app.config().clt_address, app.config().clt_port);
+        kvclient.setUser(app.config().uid, app.config().gid);
         kvclient.parse(app.cmdline());
         kvclient.send();
     }
