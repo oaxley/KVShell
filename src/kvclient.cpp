@@ -74,10 +74,12 @@ void KVClient::parse(Application::CmdLine& cmdline)
             ++it;
 
             // add the userId
+            std::uint8_t* user_id = new std::uint8_t[sizeof(uid_)];
+            memcpy(user_id, &uid_, sizeof(uid_));
             item = new VM::QueueItem {
                 opcode: VM::Opcodes_t::U_USER,
                 szdata: sizeof(uid_),
-                pdata: reinterpret_cast<std::uint8_t*>(&uid_)
+                pdata: user_id
             };
             items_.push(item);
 
@@ -105,10 +107,12 @@ void KVClient::parse(Application::CmdLine& cmdline)
             ++it;
 
             // add the userId
+            std::uint8_t* user_id = new std::uint8_t[sizeof(uid_)];
+            memcpy(user_id, &uid_, sizeof(uid_));
             item = new VM::QueueItem {
                 opcode: VM::Opcodes_t::U_USER,
                 szdata: sizeof(uid_),
-                pdata: reinterpret_cast<std::uint8_t*>(&uid_)
+                pdata: user_id
             };
             items_.push(item);
 
