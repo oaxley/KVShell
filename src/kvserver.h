@@ -38,6 +38,11 @@ public:     //< public methods
 
 private:    //< private methods
     void freeItems();
+    void processCommand();
+    void sendResponse(int sock);
+
+    VM::QueueItem* next();
+    std::uint8_t* retrieveKey();
 
 private:    //< private members
     KVDbase* pDbase_;

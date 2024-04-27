@@ -6,6 +6,7 @@
 // ----- includes
 #include "constants.h"
 #include "kvserver.h"
+#include "vm/helpers.h"
 
 #include <signal.h>
 #include <sys/socket.h>
@@ -112,15 +113,139 @@ void KVServer::freeItems()
 // network callback
 void KVServer::callback(int sock)
 {
-    char buffer[1024] = {0};
-    int n = recv(sock, buffer, 1024, 0);
-    std::cerr << "Received " << n << " bytes : " << buffer << "\n";
+    // recreate the items
+    std::uint8_t buffer[Constants::KVServer::max_read_buffer] = {0};
+
+    // read the Start-of-Transmission character
+    int n = recv(sock, buffer, sizeof(std::uint8_t), 0);
+
+    if (buffer[0] != Constants::Network::Protocol::sot) {
+        std::cerr << "Error: unable to find the SOT marker! [" << std::hex << buffer[0] << "]\n";
+        // purge the socket
+        while(n > 0) {
+            n = recv(sock, buffer, Constants::KVServer::max_read_buffer, 0);
+        }
+        return;
+    }
+
+    // wait for the End-of-Transmission character
+    while (true)
+    {
+        // read the next character
+        n = recv(sock, buffer, sizeof(std::uint8_t), 0);
+        if ((buffer[0] == Constants::Network::Protocol::eot) || (n <= 0)) {
+            break;
+        }
+
+        // this is an opcode
+        VM::Opcodes_t op = static_cast<VM::Opcodes_t>(buffer[0]);
+
+        // retrieve the size of the data
+        recv(sock, buffer, sizeof(std::uint16_t), 0);
+        std::uint16_t* p = reinterpret_cast<std::uint16_t*>(buffer);
+
+        // create a new item
+        VM::QueueItem* item = nullptr;
+
+        if (*p == 0) {
+            item = new VM::QueueItem {
+                opcode: op,
+                szdata: 0,
+                pdata: nullptr
+            };
+            items_.push(item);
+        } else {
+            item = new VM::QueueItem {
+                opcode: op,
+                szdata: *p,
+                pdata: new std::uint8_t[(*p) + 1]
+            };
+
+            // read the data
+            memset(item->pdata, 0, (*p) + 1);
+            recv(sock, item->pdata, *p, 0);
+            items_.push(item);
+        }
+    }
+
+    // interpret the command from the user
+    processCommand();
+
+    // send the response to the user
+    sendResponse(sock);
+
+    // release the items in the queue
+    freeItems();
 }
 
-// signal handler
-void KVServer::signalHandler(int signal)
+// process the command from the user
+void KVServer::processCommand()
 {
-    if (signal == SIGINT) {
-        stop();
+}
+
+// send the response to the user
+void KVServer::sendResponse(int sock)
+{
+
+}
+
+// get the next item from the queue
+VM::QueueItem* KVServer::next()
+{
+    auto* item = items_.front();
+    items_.pop();
+
+    return item;
+}
+
+// retrieve the Key from the queue by aggregating multiple K_NAME block
+std::uint8_t* KVServer::retrieveKey()
+{
+    std::uint8_t* key = nullptr;
+    std::uint16_t total_size{0};
+
+    while(!items_.empty())
+    {
+        // retrieve the next element from the queue (but don't remove it yet)
+        auto* item = items_.front();
+
+        // no longer a K_NAME element
+        if (item->opcode != VM::Opcodes_t::K_NAME)
+            break;
+
+        // retrieve the data from the block
+        std::uint16_t size{0};
+        std::uint8_t* data = VM::getKey(item, &size);
+
+        // initial block
+        if (key == nullptr) {
+            key = data;
+            total_size = size;
+        } else {
+            // we need to move the data elsewhere ...
+            int new_size = total_size + size + 1;
+            std::uint8_t* new_ptr = new std::uint8_t[new_size];
+
+            // copy the data
+            memset(new_ptr, 0, new_size);
+            memcpy(new_ptr, key, total_size);
+            memcpy(new_ptr + total_size, data, size);
+
+            // compute the new size
+            total_size = total_size + size;
+
+            // delete previous buffer
+            delete [] key;
+            delete [] data;
+
+            // this is the new key
+            key = new_ptr;
+        }
+
+        // remove the element from the queue
+        items_.pop();
+        delete item;
     }
+
+    return key;
 }
