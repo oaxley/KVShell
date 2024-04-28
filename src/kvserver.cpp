@@ -198,10 +198,11 @@ VM::QueueItem* KVServer::next()
     return item;
 }
 
-// retrieve the Key from the queue by aggregating multiple K_NAME block
-std::uint8_t* KVServer::retrieveKey()
+
+// retrieve the data from an item block
+std::uint8_t* KVServer::retrieveData(int* size, VM::Opcodes_t opcode)
 {
-    std::uint8_t* key = nullptr;
+    std::uint8_t* value = nullptr;
     std::uint16_t total_size{0};
 
     while(!items_.empty())
@@ -210,16 +211,16 @@ std::uint8_t* KVServer::retrieveKey()
         auto* item = items_.front();
 
         // no longer a K_NAME element
-        if (item->opcode != VM::Opcodes_t::K_NAME)
+        if (item->opcode != opcode)
             break;
 
         // retrieve the data from the block
         std::uint16_t size{0};
-        std::uint8_t* data = VM::getKey(item, &size);
+        std::uint8_t* data = VM::getData(item, &size);
 
         // initial block
-        if (key == nullptr) {
-            key = data;
+        if (value == nullptr) {
+            value = data;
             total_size = size;
         } else {
             // we need to move the data elsewhere ...
@@ -228,18 +229,18 @@ std::uint8_t* KVServer::retrieveKey()
 
             // copy the data
             memset(new_ptr, 0, new_size);
-            memcpy(new_ptr, key, total_size);
+            memcpy(new_ptr, value, total_size);
             memcpy(new_ptr + total_size, data, size);
 
             // compute the new size
             total_size = total_size + size;
 
             // delete previous buffer
-            delete [] key;
+            delete [] value;
             delete [] data;
 
-            // this is the new key
-            key = new_ptr;
+            // this is the new value
+            value = new_ptr;
         }
 
         // remove the element from the queue
@@ -247,5 +248,53 @@ std::uint8_t* KVServer::retrieveKey()
         delete item;
     }
 
-    return key;
+    *size = total_size;
+    return value;
+}
+
+// retrieve the Key from the queue by aggregating multiple K_NAME block
+std::uint8_t* KVServer::retrieveKey(int* size)
+{
+    return retrieveData(size, VM::Opcodes_t::K_NAME);
+}
+
+
+std::uint8_t* KVServer::retrieveValue(int* size)
+{
+    return retrieveData(size, VM::Opcodes_t::V_VALUE);
+}
+
+
+
+
+// ----- database operations
+
+// retrieve a value from the database
+void KVServer::getDBValue(std::uint8_t* key, int size,  int uid)
+{
+
+    try
+    {
+        SQLite::Database& db = pDbase_->get();
+
+        std::cerr << "Prepare statement...\n";
+        SQLite::Statement query(db, "SELECT value FROM KVEntry WHERE user = :uid AND key = :key");
+
+        std::cerr << "Binding values to the query...\n";
+        query.bind(":uid", uid);
+        query.bind(":key", key, size);
+
+        std::cerr << "Statement: " << query.getExpandedSQL() << "\n";
+
+        std::cerr << "Get results...\n";
+        while (query.executeStep())
+        {
+            std::cerr << query.getColumn(0) << "\n";
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+}
+
 }

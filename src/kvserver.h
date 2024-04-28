@@ -42,7 +42,13 @@ private:    //< private methods
     void sendResponse(int sock);
 
     VM::QueueItem* next();
-    std::uint8_t* retrieveKey();
+
+    std::uint8_t* retrieveData(int* size, VM::Opcodes_t opcode);
+    std::uint8_t* retrieveKey(int* size);
+    std::uint8_t* retrieveValue(int* size);
+
+    // database operations
+    void getDBValue(std::uint8_t* key, int size, int uid);
 
 private:    //< private members
     KVDbase* pDbase_;
