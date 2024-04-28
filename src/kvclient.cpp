@@ -170,7 +170,7 @@ void KVClient::getValue(std::string_view arg)
 {
     // data from the command line
     if (arg.size() > 0) {
-        itemFromArg(arg, VM::Opcodes_t::V_STR);
+        itemFromArg(arg, VM::Opcodes_t::V_VALUE);
         return;
     }
 
@@ -187,7 +187,7 @@ void KVClient::getValue(std::string_view arg)
 
             // create a new block
             VM::QueueItem* item = new VM::QueueItem {
-                opcode: VM::Opcodes_t::V_STDIN,
+                opcode: VM::Opcodes_t::V_VALUE,
                 szdata: static_cast<std::uint16_t>(n),
                 pdata: new std::uint8_t[n]
             };

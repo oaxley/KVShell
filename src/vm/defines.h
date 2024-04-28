@@ -38,11 +38,7 @@ enum class Opcodes_t {
     K_NAME,                 //< Standard string for key
 
     // ----- VALUES
-    V_STR,                  //< String Value
-    V_STDIN,                //< Read STDIN for input
-    V_DT,                   //< Date Time value
-    V_DUR,                  //< Duration with unit
-    V_REGEXP,               //< Regular Expression
+    V_VALUE,                //< User Value
 
     // ----- RESP
     R_VALUE,                //< Response from Server
