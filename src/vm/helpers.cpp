@@ -27,14 +27,9 @@ int getUID(QueueItem* item)
     return *p;
 }
 
-// retrieve the key from the K_NAME block
-std::uint8_t* getKey(QueueItem* item, std::uint16_t* size)
+// retrieve the data from a block
+std::uint8_t* getData(QueueItem* item, std::uint16_t* size)
 {
-    if (item->opcode != Opcodes_t::K_NAME) {
-        std::cerr << "Error: block is not a K_NAME in VM::getKey!\n";
-        return nullptr;
-    }
-
     // return the size to the caller
     *size = item->szdata;
 
@@ -45,17 +40,5 @@ std::uint8_t* getKey(QueueItem* item, std::uint16_t* size)
 
     return dest;
 }
-
-// retrieve the value from the V_STR or V_STDIN block
-std::uint8_t* getValue(QueueItem* item)
-{
-    if ((item->opcode != Opcodes_t::V_STR) && (item->opcode != Opcodes_t::V_STDIN)) {
-        std::cerr << "Error: block is not a V_STR or V_STDIN in VM::getValue!\n";
-        return nullptr;
-    }
-
-    return nullptr;
-}
-
 
 } //< end of namespace
