@@ -66,7 +66,7 @@ void KVDbase::createTables()
         pSQLite_->exec("CREATE TABLE KVEntry ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "user INTEGER NOT NULL,"
-            "key TEXT NOT NULL,"
+            "key BLOB NOT NULL,"
             "value BLOB NOT NULL,"
             "expiry INTEGER,"
             "timestamp INTEGER"
