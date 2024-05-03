@@ -181,6 +181,80 @@ void KVServer::callback(int sock)
 // process the command from the user
 void KVServer::processCommand()
 {
+    std::uint8_t* key{nullptr};
+    std::uint8_t* value{nullptr};
+    int uid{0};
+    int ksize{0};
+    int vsize{0};
+    DBResult* pResult{nullptr};
+
+    // retrieve the opcode
+    auto* item = next();
+
+    switch(item->opcode)
+    {
+        case VM::Opcodes_t::OP_GET:     // retrieve a value from the DB
+            delete item;
+
+            // retrieve the uid
+            item = next();
+            uid = VM::getUID(item);
+            delete item;
+
+            // retrieve the key name
+            key = retrieveKey(&ksize);
+
+            // retrieve the result
+            pResult = pDbase_->fetchRow(key, ksize, uid);
+            if (pResult != nullptr) {
+                std::cout << pResult->pData << std::endl;
+            } else {
+                std::cerr << "Error: unable to retrieve data for [" << key << "]\n";
+            }
+            break;
+
+        case VM::Opcodes_t::OP_SET:     // set a value in the DB
+            delete item;
+
+            // retrieve the uid
+            item = next();
+            uid = VM::getUID(item);
+            delete item;
+
+            // retrieve the key name
+            key = retrieveKey(&ksize);
+
+            // retrieve the value
+            value = retrieveValue(&vsize);
+
+            if (pDbase_->insert(key, ksize, value, vsize, uid) == 0) {
+                std::cerr << "Error: unable to insert data for [" << key << "]\n";
+            } else {
+                std::cout << "OK\n";
+            }
+            break;
+
+        case VM::Opcodes_t::OP_EXPDT:   // expiry with a datetime
+            break;
+
+        case VM::Opcodes_t::OP_EXPDR:   // expiry with a duration
+            break;
+
+        case VM::Opcodes_t::OP_DEL:     // delete a key
+            break;
+
+        case VM::Opcodes_t::OP_PRT:     // print key with a regexp
+            break;
+
+        case VM::Opcodes_t::OP_EXIST:   // check for a key
+            break;
+
+    }
+
+    // free memory
+    delete [] key;
+    delete [] value;
+    delete pResult;
 }
 
 // send the response to the user
@@ -258,43 +332,7 @@ std::uint8_t* KVServer::retrieveKey(int* size)
     return retrieveData(size, VM::Opcodes_t::K_NAME);
 }
 
-
 std::uint8_t* KVServer::retrieveValue(int* size)
 {
     return retrieveData(size, VM::Opcodes_t::V_VALUE);
-}
-
-
-
-
-// ----- database operations
-
-// retrieve a value from the database
-void KVServer::getDBValue(std::uint8_t* key, int size,  int uid)
-{
-
-    try
-    {
-        SQLite::Database& db = pDbase_->get();
-
-        std::cerr << "Prepare statement...\n";
-        SQLite::Statement query(db, "SELECT value FROM KVEntry WHERE user = :uid AND key = :key");
-
-        std::cerr << "Binding values to the query...\n";
-        query.bind(":uid", uid);
-        query.bind(":key", key, size);
-
-        std::cerr << "Statement: " << query.getExpandedSQL() << "\n";
-
-        std::cerr << "Get results...\n";
-        while (query.executeStep())
-        {
-            std::cerr << query.getColumn(0) << "\n";
-        }
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-}
-
 }

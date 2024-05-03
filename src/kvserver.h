@@ -47,8 +47,6 @@ private:    //< private methods
     std::uint8_t* retrieveKey(int* size);
     std::uint8_t* retrieveValue(int* size);
 
-    // database operations
-    void getDBValue(std::uint8_t* key, int size, int uid);
 
 private:    //< private members
     KVDbase* pDbase_;
