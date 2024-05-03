@@ -13,6 +13,17 @@
 #include <string>
 
 
+// ----- structures
+struct DBResult
+{
+    std::uint16_t size;
+    std::uint8_t* pData;
+
+    ~DBResult() {
+        delete [] pData;
+    }
+};
+
 // ----- class
 class KVDbase
 {
@@ -21,6 +32,11 @@ public:     //< public methods
     ~KVDbase();
 
     SQLite::Database& get();
+
+    // operations
+    DBResult* fetchRow(std::uint8_t* key, int size, int uid);
+    int insert(std::uint8_t* key, int ksize, std::uint8_t* value, int vsize, int uid);
+
 
     // no copy
     KVDbase(const KVDbase&) = delete;
@@ -34,8 +50,7 @@ private:    //< private methods
     void createTables();
 
 
-private:
-//< private members
+private:    //< private members
     SQLite::Database* pSQLite_;
 };
 
