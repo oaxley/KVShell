@@ -78,3 +78,64 @@ void KVDbase::createTables()
         std::exit(EXIT_FAILURE);
     }
 }
+
+// retrieve a single row from the database
+DBResult* KVDbase::fetchRow(std::uint8_t* key, int size,  int uid)
+{
+    try
+    {
+        // prepare the query
+        SQLite::Statement query(*pSQLite_, "SELECT value FROM KVEntry WHERE user = :uid AND key = :key");
+        query.bind(":uid", uid);
+        query.bind(":key", key, size);
+
+        // execute the query
+        bool result = query.executeStep();
+        if (!result) {
+            return nullptr;
+        }
+
+        SQLite::Column blob = query.getColumn(0);
+        int size = blob.getBytes();
+
+        // create a new result structure
+        DBResult* db_result = new DBResult{
+            size: size,
+            pData: new std::uint8_t[size]
+        };
+
+        // copy the blob
+        memcpy(db_result->pData, blob.getBlob(), size);
+
+        return db_result;
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+
+    return nullptr;
+}
+
+// add a key/value in the database
+int KVDbase::insert(std::uint8_t* key, int ksize, std::uint8_t* value, int vsize, int uid)
+{
+    int rows{0};
+
+    try
+    {
+        SQLite::Statement query(*pSQLite_, "INSERT INTO KVEntry (user, key, value) VALUES (:uid, :key, :value)");
+
+        query.bind(":uid", uid);
+        query.bind(":key", key, ksize);
+        query.bind(":value", value, vsize);
+
+        rows = query.exec();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+
+    return rows;
+}
