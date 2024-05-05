@@ -237,3 +237,70 @@ void KVClient::send()
     // send the end of transmission
     pClient_->send(&Constants::Network::Protocol::eot, 1);
 }
+
+// receive data from the server
+int KVClient::recv()
+{
+    VM::Opcodes_t op{VM::Opcodes_t::R_ERROR};
+
+    // recreate the items
+    std::uint8_t buffer[Constants::Network::Protocol::max_read_buffer] = {0};
+
+    // read the Start-of-Transmission character
+    int n = pClient_->recv(buffer, sizeof(std::uint8_t));
+
+    if (buffer[0] != Constants::Network::Protocol::sot) {
+        std::cerr << "Error: unable to find the SOT marker! [" << std::hex << buffer[0] << "]\n";
+        // purge the socket
+        while(n > 0) {
+            n = pClient_->recv(buffer, Constants::Network::Protocol::max_read_buffer);
+        }
+        return -1;
+    }
+
+    // wait for the End-of-Transmission character
+    while (true)
+    {
+        // read the next character
+        n = pClient_->recv(buffer, sizeof(std::uint8_t));
+        if ((buffer[0] == Constants::Network::Protocol::eot) || (n <= 0)) {
+            break;
+        }
+
+        // this is an opcode
+        op = static_cast<VM::Opcodes_t>(buffer[0]);
+
+        // retrieve the size of the data
+        pClient_->recv(buffer, sizeof(std::uint16_t));
+        std::uint16_t* p = reinterpret_cast<std::uint16_t*>(buffer);
+
+        int size{0};
+        while (*p > 0) {
+
+            // -1 to account for the '\0'
+            if (*p > Constants::Network::Protocol::max_read_buffer) {
+                size = Constants::Network::Protocol::max_read_buffer - 1;
+            } else {
+                size = *p;
+            }
+
+            // read the data and print it on screen
+            memset(buffer, 0, Constants::Network::Protocol::max_read_buffer);
+            n = pClient_->recv(buffer, size);
+            std::cout << buffer;
+
+            // decrease the initial size by the amount read
+            *p = *p - n;
+        }
+    }
+
+    // print the last line
+    std::cout << std::endl;
+
+    // return value according to received opcode from server
+    if (op == VM::Opcodes_t::R_ERROR) {
+        return -1;
+    } else {
+        return 0;
+    }
+}

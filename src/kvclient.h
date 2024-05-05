@@ -24,6 +24,7 @@ public:     //< public methods
 
     void parse(Application::CmdLine& cmdline);
     void send();
+    int recv();
     void setUser(int uid, int gid);
 
     // no copy semantics
