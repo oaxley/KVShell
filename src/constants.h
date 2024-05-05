@@ -43,14 +43,14 @@ namespace Constants::Network::Protocol
     inline static std::uint8_t sot{0xFA};                       //< start of transmission
     inline static std::uint8_t eot{0xFB};                       //< end of transmission
     inline static std::uint16_t max_item_size{(1 << 16) - 1};   //< max item size
+
+    inline static int max_read_buffer{1024};                    //< max read buffer for client / server
 }
 
 namespace Constants::KVServer
 {
     using namespace std::chrono_literals;
     inline constexpr std::chrono::milliseconds kvserver_mainloop_timeout{200ms};
-
-    inline static int max_read_buffer{1024};
 }
 
 #endif // CONSTANTS_H
