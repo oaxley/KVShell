@@ -41,7 +41,15 @@ private:    //< private methods
     void processCommand();
     void sendResponse(int sock);
 
-    VM::QueueItem* next();
+    void createResponse(VM::Opcodes_t code, std::uint8_t* pData, int size);
+    void createResponse(VM::Opcodes_t code, DBResult* pResult);
+    void createResponse(VM::Opcodes_t code, std::string msg);
+
+    // queue management
+    void freeItems();               //< remove all the items from the queue
+    VM::QueueItem* nextItem();      //< return the value in front of the queue (but don't remove it)
+    void removeItem();              //< remove the value in front of the queue
+
 
     std::uint8_t* retrieveData(int* size, VM::Opcodes_t opcode);
     std::uint8_t* retrieveKey(int* size);

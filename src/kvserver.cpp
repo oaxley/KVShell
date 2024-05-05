@@ -110,6 +110,21 @@ void KVServer::freeItems()
     }
 }
 
+// get the next item from the queue
+VM::QueueItem* KVServer::nextItem()
+{
+    return items_.front();
+}
+
+// remove the item from the queue
+void KVServer::removeItem()
+{
+    auto* item = items_.front();
+    items_.pop();
+    delete item;
+}
+
+
 // network callback
 void KVServer::callback(int sock)
 {
@@ -189,48 +204,40 @@ void KVServer::processCommand()
     DBResult* pResult{nullptr};
 
     // retrieve the opcode
-    auto* item = next();
+    VM::Opcodes_t opcode = nextItem()->opcode;
+    removeItem();
 
-    switch(item->opcode)
+    // retrieve the UID
+    uid = VM::getUID(nextItem());
+    removeItem();
+
+    // retrieve the KEY
+    if (nextItem()->opcode == VM::Opcodes_t::K_NAME) {
+        key = retrieveKey(&ksize);
+    }
+
+    switch(opcode)
     {
         case VM::Opcodes_t::OP_GET:     // retrieve a value from the DB
-            delete item;
-
-            // retrieve the uid
-            item = next();
-            uid = VM::getUID(item);
-            delete item;
-
-            // retrieve the key name
-            key = retrieveKey(&ksize);
 
             // retrieve the result
             pResult = pDbase_->fetchRow(key, ksize, uid);
             if (pResult != nullptr) {
-                std::cout << pResult->pData << std::endl;
+                createResponse(VM::Opcodes_t::R_VALUE, pResult);
             } else {
-                std::cerr << "Error: unable to retrieve data for [" << key << "]\n";
+                createResponse(VM::Opcodes_t::R_ERROR, std::string("Error: unable to retrieve data with the key provided!"));
             }
             break;
 
         case VM::Opcodes_t::OP_SET:     // set a value in the DB
-            delete item;
-
-            // retrieve the uid
-            item = next();
-            uid = VM::getUID(item);
-            delete item;
-
-            // retrieve the key name
-            key = retrieveKey(&ksize);
 
             // retrieve the value
             value = retrieveValue(&vsize);
 
             if (pDbase_->insert(key, ksize, value, vsize, uid) == 0) {
-                std::cerr << "Error: unable to insert data for [" << key << "]\n";
+                createResponse(VM::Opcodes_t::R_ERROR, std::string("Error: unable to insert data with the key provided!"));
             } else {
-                std::cout << "OK\n";
+                createResponse(VM::Opcodes_t::R_VALUE, std::string("OK"));
             }
             break;
 
