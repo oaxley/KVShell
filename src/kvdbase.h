@@ -16,7 +16,7 @@
 // ----- structures
 struct DBResult
 {
-    std::uint16_t size;
+    int size;
     std::uint8_t* pData;
 
     ~DBResult() {
