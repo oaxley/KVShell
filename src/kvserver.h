@@ -37,7 +37,6 @@ public:     //< public methods
     KVServer& operator=(KVServer&&) = delete;
 
 private:    //< private methods
-    void freeItems();
     void processCommand();
     void sendResponse(int sock);
 
