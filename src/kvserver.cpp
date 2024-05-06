@@ -104,9 +104,7 @@ void KVServer::signalHandler(int signal)
 void KVServer::freeItems()
 {
     while (items_.size() > 0) {
-        auto* elt = items_.front();
-        items_.pop();
-        delete elt;
+        removeItem();
     }
 }
 
@@ -129,7 +127,7 @@ void KVServer::removeItem()
 void KVServer::callback(int sock)
 {
     // recreate the items
-    std::uint8_t buffer[Constants::KVServer::max_read_buffer] = {0};
+    std::uint8_t buffer[Constants::Network::Protocol::max_read_buffer] = {0};
 
     // read the Start-of-Transmission character
     int n = recv(sock, buffer, sizeof(std::uint8_t), 0);
@@ -138,7 +136,7 @@ void KVServer::callback(int sock)
         std::cerr << "Error: unable to find the SOT marker! [" << std::hex << buffer[0] << "]\n";
         // purge the socket
         while(n > 0) {
-            n = recv(sock, buffer, Constants::KVServer::max_read_buffer, 0);
+            n = recv(sock, buffer, Constants::Network::Protocol::max_read_buffer, 0);
         }
         return;
     }
@@ -267,18 +265,39 @@ void KVServer::processCommand()
 // send the response to the user
 void KVServer::sendResponse(int sock)
 {
+    // send start of transmission
+    send(sock, &Constants::Network::Protocol::sot, 1, 0);
+
+    // send all the blocks
+    while (!items_.empty())
+    {
+        std::uint8_t value{};
+
+        // retrieve the item
+        auto* item = items_.front();
+
+        // send the opcode
+        value = static_cast<std::uint8_t>(item->opcode);
+        send(sock, &value, sizeof(value), 0);
+
+        // retrieve the size + value
+        if (item->szdata == 0) {
+            std::uint16_t zero = 0;
+            send(sock, reinterpret_cast<std::uint8_t*>(&zero), sizeof(zero), 0);
+        } else {
+            send(sock, reinterpret_cast<std::uint8_t*>(&item->szdata), sizeof(item->szdata), 0);
+            send(sock, item->pdata, item->szdata, 0);
+        }
+
+        // next item
+        items_.pop();
+        delete item;
+    }
+
+    // send end of transmission
+    send(sock, &Constants::Network::Protocol::eot, 1, 0);
 
 }
-
-// get the next item from the queue
-VM::QueueItem* KVServer::next()
-{
-    auto* item = items_.front();
-    items_.pop();
-
-    return item;
-}
-
 
 // retrieve the data from an item block
 std::uint8_t* KVServer::retrieveData(int* size, VM::Opcodes_t opcode)
@@ -333,13 +352,86 @@ std::uint8_t* KVServer::retrieveData(int* size, VM::Opcodes_t opcode)
     return value;
 }
 
-// retrieve the Key from the queue by aggregating multiple K_NAME block
+// retrieve the Key from the queue by aggregating multiple K_NAME blocks
 std::uint8_t* KVServer::retrieveKey(int* size)
 {
     return retrieveData(size, VM::Opcodes_t::K_NAME);
 }
 
+// retrieve the Value from the queue by aggregating multiple V_VALUE blocks
 std::uint8_t* KVServer::retrieveValue(int* size)
 {
     return retrieveData(size, VM::Opcodes_t::V_VALUE);
+}
+
+
+// create a response from a std::uint8_t pointer
+// TO BE DONE
+void KVServer::createResponse(VM::Opcodes_t code, std::uint8_t* pData, int size)
+{
+    // delete the remaining item in the queue
+    // at this point they are not needed anymore
+    freeItems();
+}
+
+// create a response from a DB result
+// TODO:
+// DBResult has already allocated memory for the result
+// we can use this and avoid re-allocated a second time the memory
+// just to release it again later on
+void KVServer::createResponse(VM::Opcodes_t code, DBResult* pResult)
+{
+    // delete the remaining item in the queue
+    // at this point they are not needed anymore
+    freeItems();
+
+    // only create block of regular size
+    int item_size = pResult->size;
+    int count = 0;
+
+    while (count < item_size)
+    {
+        int remaining = item_size - count;
+
+        int block_size = 0;
+        if (remaining > Constants::Network::Protocol::max_item_size) {
+            block_size = Constants::Network::Protocol::max_item_size;
+        } else {
+            block_size = remaining;
+        }
+
+        // create a new block
+        VM::QueueItem* item = new VM::QueueItem {
+            opcode: code,
+            szdata: static_cast<std::uint16_t>(block_size),
+            pdata: new std::uint8_t[block_size]
+        };
+
+        // copy the data to the block (to find a clever way to do it)
+        memcpy(item->pdata, pResult->pData+count, block_size);
+        count += block_size;
+
+        items_.push(item);
+    }
+}
+
+// create a response with a simple string message
+void KVServer::createResponse(VM::Opcodes_t code, std::string msg)
+{
+    // delete the remaining item in the queue
+    // at this point they are not needed anymore
+    freeItems();
+
+    // create the new item
+    VM::QueueItem* item = new VM::QueueItem {
+        opcode: code,
+        szdata: std::size(msg),
+        pdata: new std::uint8_t[std::size(msg)]
+    };
+
+    // copy the message
+    memcpy(item->pdata, msg.data(), std::size(msg));
+
+    // add the item to the queue
+    items_.push(item);
 }
