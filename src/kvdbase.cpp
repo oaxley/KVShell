@@ -124,13 +124,34 @@ int KVDbase::insert(std::uint8_t* key, int ksize, std::uint8_t* value, int vsize
 
     try
     {
-        SQLite::Statement query(*pSQLite_, "INSERT INTO KVEntry (user, key, value) VALUES (:uid, :key, :value)");
+        // check if the row does not exist already
+        SQLite::Statement squery(*pSQLite_, "SELECT * FROM KVEntry WHERE user = :uid AND key = :key");
+        squery.bind(":uid", uid);
+        squery.bind(":key", key, ksize);
 
-        query.bind(":uid", uid);
-        query.bind(":key", key, ksize);
-        query.bind(":value", value, vsize);
+        bool result = squery.executeStep();
+        if (!result)
+        {
+            // the record does not exist, create one
+            SQLite::Statement iquery(*pSQLite_, "INSERT INTO KVEntry (user, key, value) VALUES (:uid, :key, :value)");
 
-        rows = query.exec();
+            iquery.bind(":uid", uid);
+            iquery.bind(":key", key, ksize);
+            iquery.bind(":value", value, vsize);
+
+            rows = iquery.exec();
+        }
+        else
+        {
+            // update the current record
+            SQLite::Statement uquery(*pSQLite_, "UPDATE KVEntry SET value = :value WHERE user = :uid AND key = :key");
+
+            uquery.bind(":uid", uid);
+            uquery.bind(":key", key, ksize);
+            uquery.bind(":value", value, vsize);
+
+            rows = uquery.exec();
+        }
     }
     catch(const std::exception& e)
     {
