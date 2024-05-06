@@ -36,6 +36,8 @@ public:     //< public methods
     // operations
     DBResult* fetchRow(std::uint8_t* key, int size, int uid);
     int insert(std::uint8_t* key, int ksize, std::uint8_t* value, int vsize, int uid);
+    bool exists(std::uint8_t* key, int ksize, int uid);
+    bool remove(std::uint8_t* key, int ksize, int uid);
 
 
     // no copy

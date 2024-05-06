@@ -160,3 +160,45 @@ int KVDbase::insert(std::uint8_t* key, int ksize, std::uint8_t* value, int vsize
 
     return rows;
 }
+
+// check if a key exists in the database
+bool KVDbase::exists(std::uint8_t* key, int ksize, int uid)
+{
+    try
+    {
+        // check if the row does not exist already
+        SQLite::Statement squery(*pSQLite_, "SELECT * FROM KVEntry WHERE user = :uid AND key = :key");
+        squery.bind(":uid", uid);
+        squery.bind(":key", key, ksize);
+
+        return squery.executeStep();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+
+    return false;
+}
+
+
+bool KVDbase::remove(std::uint8_t* key, int ksize, int uid)
+{
+    int rows{0};
+
+    try
+    {
+        // check if the row does not exist already
+        SQLite::Statement query(*pSQLite_, "DELETE FROM KVEntry WHERE user = :uid AND key = :key");
+        query.bind(":uid", uid);
+        query.bind(":key", key, ksize);
+
+        rows = query.exec();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+
+    return (rows != 0);
+}

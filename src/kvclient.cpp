@@ -121,6 +121,59 @@ void KVClient::parse(Application::CmdLine& cmdline)
 
             break;
         }
+
+        // delete a key
+        if ((*it).compare("delete") == 0) {
+            VM::QueueItem* item = new VM::QueueItem {
+                opcode: VM::Opcodes_t::OP_DEL,
+                szdata: 0,
+                pdata: nullptr
+            };
+            items_.push(item);
+            ++it;
+
+            // add the userId
+            std::uint8_t* user_id = new std::uint8_t[sizeof(uid_)];
+            memcpy(user_id, &uid_, sizeof(uid_));
+            item = new VM::QueueItem {
+                opcode: VM::Opcodes_t::U_USER,
+                szdata: sizeof(uid_),
+                pdata: user_id
+            };
+            items_.push(item);
+
+            // read the key name
+            getKeyName(*(it++));
+
+            break;
+        }
+
+        // check if a key exists
+        if ((*it).compare("exists") == 0) {
+            VM::QueueItem* item = new VM::QueueItem {
+                opcode: VM::Opcodes_t::OP_EXIST,
+                szdata: 0,
+                pdata: nullptr
+            };
+            items_.push(item);
+            ++it;
+
+            // add the userId
+            std::uint8_t* user_id = new std::uint8_t[sizeof(uid_)];
+            memcpy(user_id, &uid_, sizeof(uid_));
+            item = new VM::QueueItem {
+                opcode: VM::Opcodes_t::U_USER,
+                szdata: sizeof(uid_),
+                pdata: user_id
+            };
+            items_.push(item);
+
+            // read the key name
+            getKeyName(*(it++));
+
+            break;
+        }
+
     }
 }
 

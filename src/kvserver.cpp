@@ -217,25 +217,27 @@ void KVServer::processCommand()
     switch(opcode)
     {
         case VM::Opcodes_t::OP_GET:     // retrieve a value from the DB
-
-            // retrieve the result
-            pResult = pDbase_->fetchRow(key, ksize, uid);
-            if (pResult != nullptr) {
-                createResponse(VM::Opcodes_t::R_VALUE, pResult);
-            } else {
-                createResponse(VM::Opcodes_t::R_ERROR, std::string("Error: unable to retrieve data with the key provided!"));
+            {
+                // retrieve the result
+                pResult = pDbase_->fetchRow(key, ksize, uid);
+                if (pResult != nullptr) {
+                    createResponse(VM::Opcodes_t::R_VALUE, pResult);
+                } else {
+                    createResponse(VM::Opcodes_t::R_ERROR, std::string("Error: unable to retrieve data with the key provided!"));
+                }
             }
             break;
 
         case VM::Opcodes_t::OP_SET:     // set a value in the DB
+            {
+                // retrieve the value
+                value = retrieveValue(&vsize);
 
-            // retrieve the value
-            value = retrieveValue(&vsize);
-
-            if (pDbase_->insert(key, ksize, value, vsize, uid) == 0) {
-                createResponse(VM::Opcodes_t::R_ERROR, std::string("Error: unable to insert data with the key provided!"));
-            } else {
-                createResponse(VM::Opcodes_t::R_VALUE, std::string("OK"));
+                if (pDbase_->insert(key, ksize, value, vsize, uid) == 0) {
+                    createResponse(VM::Opcodes_t::R_ERROR, std::string("Error: unable to insert data with the key provided!"));
+                } else {
+                    createResponse(VM::Opcodes_t::R_VALUE, std::string("OK"));
+                }
             }
             break;
 
@@ -246,14 +248,29 @@ void KVServer::processCommand()
             break;
 
         case VM::Opcodes_t::OP_DEL:     // delete a key
+            {
+                bool result = pDbase_->remove(key, ksize, uid);
+                if (result) {
+                    createResponse(VM::Opcodes_t::V_VALUE, std::string("OK"));
+                } else {
+                    createResponse(VM::Opcodes_t::R_ERROR, std::string("Error: unable to delete the key!"));
+                }
+            }
             break;
 
         case VM::Opcodes_t::OP_PRT:     // print key with a regexp
             break;
 
         case VM::Opcodes_t::OP_EXIST:   // check for a key
+            {
+                bool result = pDbase_->exists(key, ksize, uid);
+                if (result) {
+                    createResponse(VM::Opcodes_t::V_VALUE, "True");
+                } else {
+                    createResponse(VM::Opcodes_t::V_VALUE, "False");
+                }
+            }
             break;
-
     }
 
     // free memory
@@ -296,7 +313,6 @@ void KVServer::sendResponse(int sock)
 
     // send end of transmission
     send(sock, &Constants::Network::Protocol::eot, 1, 0);
-
 }
 
 // retrieve the data from an item block
